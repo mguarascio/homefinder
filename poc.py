@@ -56,7 +56,3 @@ if __name__ == "__main__":
 	collection = db.find('towns_database', 'town', { 'avgprice': { '$gt': minimum, '$lt': maximum } }).sort('avgprice')
 	for record in collection:
 		print record['name'] + ': ' + str(record['avgprice'])
-
-
-
-
