@@ -1,7 +1,7 @@
 import db
 import json
 import requests
-from models import Town
+from models import Town, CommuteFilter
 from operator import itemgetter, attrgetter
 from lxml import etree
 
@@ -13,12 +13,11 @@ nozestimates = []
 
 def findTowns(county):
 	api_key='X1-ZWz1bk5al9s4y3_67ceq'
-	#url='http://www.zillow.com/webservice/GetRegionChildren.htm?zws-id=%s&state=ny&county=suffolk' % api_key
 	url='http://www.zillow.com/webservice/GetRegionChildren.htm?zws-id=%s&state=ny&county=%s' % (api_key, county)
 	#print url
 	#r = requests.get(url)
 	#print r.text
-	root = etree.fromstring(response_nassau)
+	root = etree.fromstring(response_suffolk)
 	for element in root.iter('region'):
 		regionid = name = url = latitude = longitude = ''
 		avgprice = 0
@@ -39,20 +38,25 @@ def findTowns(county):
 			town = Town(regionid, name, county, avgprice, url, latitude, longitude)
 			towns.append(town)
 
-def printTop5():
-	#towns.sort(key=attrgetter('avgprice'), reverse=True)
-	print db.find('towns_database', 'town', { 'avgprice': { '$lt': 600000 } })
-
 def insertTowns():
 	for town in towns:
-		db.insert('towns_database', 'town', {'name':town.name, 'county':town.county, 'avgprice':town.avgprice, 'url':town.url})
+		db.insert('towns_database', 'town', {'regionid':town.regionid, 'name':town.name, 'county':town.county, 'avgprice':town.avgprice, 'url':town.url, 'latitude':town.latitude, 'longitude':town.longitude})
+
+def getTown(name):
+        found = db.find_one('towns_database', 'town', { 'name': name })
+        if(found):
+            return Town(found['regionid'], found['name'], found['county'], found['avgprice'], found['url'], found['latitude'], found['longitude'])
+        else:
+            return None
 
 if __name__ == "__main__":
-	#findTowns('nassau')
+	#cfilter = CommuteFilter('commute', 2)
+	#print cfilter.calcDistance(40.72713, -72.998932, 40.819548, -73.210046)
+	#print getTown('Patchogue')
+	#findTowns('suffolk')
 	#insertTowns()
-	#printTop5()
-	minimum = int(raw_input('Minimum avg price: '))
-	maximum = int(raw_input('Maximum avg price: '))
-	collection = db.find('towns_database', 'town', { 'avgprice': { '$gt': minimum, '$lt': maximum } }).sort('avgprice')
-	for record in collection:
-		print record['name'] + ': ' + str(record['avgprice'])
+	#minimum = int(raw_input('Minimum avg price: '))
+	#maximum = int(raw_input('Maximum avg price: '))
+	#collection = db.find('towns_database', 'town', { 'avgprice': { '$gt': minimum, '$lt': maximum } }).sort('avgprice')
+	#for record in collection:
+	#	print record['name'] + ': ' + str(record['avgprice'])
