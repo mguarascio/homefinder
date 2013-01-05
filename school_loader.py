@@ -3,7 +3,7 @@ import requests
 from lxml import etree
 
 cities_url = 'http://api.greatschools.org/cities/%s/%s?key=%s'
-key = 'yfwifnpamgp3xisp5fqwzqxx'
+key = ''
 
 sample_response = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                     <city>
